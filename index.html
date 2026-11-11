@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c2410c" />
+  <meta name="description" content="Revision hub for BSc Business Management" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Study Hub" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Study Hub</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Study Hub</h1>
+      <p>BSc Business Management</p>
+    </div>
+    <div class="progress-chip">
+      <span id="progress-text"></span>
+      <div class="bar"><div id="progress-fill"></div></div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="home" class="active">Home</button>
+    <button data-tab="plan">Plan</button>
+    <button data-tab="learn">Learn</button>
+    <button data-tab="cards">Flashcards</button>
+    <button data-tab="quiz">Quiz</button>
+  </nav>
+
+  <div class="coursebar" id="coursebar">
+    <label for="course-select">Course</label>
+    <select id="course-select"></select>
+  </div>
+
+  <main id="view"></main>
+
+  <footer>
+    <button class="btn" id="install-btn" hidden>Install Study Hub</button>
+    <p id="ios-hint" class="hint" hidden>To install on iPhone: tap Share, then "Add to Home Screen".</p>
+    <p>Plain HTML, CSS and JavaScript. Progress saves on this device.</p>
+  </footer>
+
+  <!-- To add a course: drop a new file in courses/ and add a script tag here. -->
+  <script src="courses/acc101.js"></script>
+  <script src="courses/ams101.js"></script>
+  <script src="courses/ams103.js"></script>
+  <script src="courses/bua101.js"></script>
+  <script src="courses/eco101.js"></script>
+  <script src="courses/gst111.js"></script>
+  <script src="courses/gst121.js"></script>
+  <!-- Full study notes, one file per course (built by build-content.js) -->
+  <script src="content/ams101.js"></script>
+  <script src="content/ams103.js"></script>
+  <script src="content/bua101.js"></script>
+  <script src="content/eco101.js"></script>
+  <script src="content/gst111.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    // Install support: service worker (needs https or localhost) and the install button.
+    (function () {
+      if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("sw.js").catch(function () {});
+        });
+      }
+
+      var standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+      var btn = document.getElementById("install-btn");
+      var deferred = null;
+
+      window.addEventListener("beforeinstallprompt", function (e) {
+        e.preventDefault();
+        deferred = e;
+        if (!standalone) btn.hidden = false;
+      });
+      btn.addEventListener("click", function () {
+        if (!deferred) return;
+        deferred.prompt();
+        deferred.userChoice.then(function () { deferred = null; btn.hidden = true; });
+      });
+      window.addEventListener("appinstalled", function () { btn.hidden = true; });
+
+      var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      if (isIOS && !standalone) document.getElementById("ios-hint").hidden = false;
+    })();
+  </script>
+</body>
+</html>
